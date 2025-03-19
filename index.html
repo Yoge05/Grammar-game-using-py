@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Grammar Quest</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .title {
+            text-align: center;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .story {
+            position: relative;
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .story:hover {
+            transform: translateY(-5px);
+        }
+
+        .button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            margin: 5px;
+            font-weight: 600;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .score {
+            text-align: center;
+            font-size: 1.2em;
+            margin: 15px 0;
+            color: #764ba2;
+            font-weight: 600;
+        }
+
+        #gameArea {
+            display: none;
+        }
+
+        #startScreen {
+            text-align: center;
+            padding: 50px 0;
+        }
+
+        textarea {
+            width: 100%;
+            margin: 15px 0;
+            padding: 15px;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            font-size: 1em;
+            resize: vertical;
+            min-height: 100px;
+            transition: border-color 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #764ba2;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .emoji {
+            font-size: 2em;
+            margin: 10px 0;
+        }
+
+        .feedback {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+
+        .feedback.success {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .feedback.error {
+            background: #f44336;
+            color: white;
+        }
+
+        .hint-button {
+            background: #f0f0f0;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            margin: 5px;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+
+        .hint-button:hover {
+            background: #e0e0e0;
+            transform: translateY(-2px);
+        }
+
+        .hint {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .solution-button {
+            opacity: 0.7;
+            font-size: 0.8em;
+            background: linear-gradient(45deg, #ff9800, #f44336);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .solution-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .level-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 0.9em;
+        }
+
+        .error-count {
+            color: #666;
+            font-size: 0.9em;
+            margin: 10px 0;
+        }
+
+        .difficulty-stars {
+            margin: 10px 0;
+            color: #ffd700;
+            font-size: 1.2em;
+        }
+
+        .level-1 .progress { background: linear-gradient(45deg, #4CAF50, #8BC34A); }
+        .level-2 .progress { background: linear-gradient(45deg, #2196F3, #03A9F4); }
+        .level-3 .progress { background: linear-gradient(45deg, #9C27B0, #E91E63); }
+        .level-4 .progress { background: linear-gradient(45deg, #FF5722, #F44336); }
+        .level-5 .progress { background: linear-gradient(45deg, #000000, #424242); }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            .title {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="startScreen">
+            <h1 class="title">Grammar Quest</h1>
+            <div class="emoji">✨</div>
+            <p style="margin-bottom: 20px; color: #666;">Embark on a journey to master English grammar!</p>
+            <button class="button" onclick="startGame()">Start Your Adventure</button>
+        </div>
+
+        <div id="gameArea">
+            <h1 class="title">Grammar Quest</h1>
+            <div class="score">Score: <span id="score">0</span></div>
+            <div class="progress-bar">
+                <div id="progress" class="progress"></div>
+            </div>
+            <div class="story">
+                <div class="level-indicator">Level <span id="currentLevel">1</span></div>
+                <div class="difficulty-stars" id="difficultyStars"></div>
+                <h3 id="storyTitle" style="color: #764ba2; margin-bottom: 10px;"></h3>
+                <p id="storyText" style="color: #666; margin-bottom: 15px;"></p>
+                <div class="error-count">Find all grammar errors in this text.</div>
+                <textarea id="userCorrection" placeholder="Type your corrected version here..."></textarea>
+                <div id="hints"></div>
+                <div class="feedback" id="feedback"></div>
+                <div style="margin: 10px 0;">
+                    <button class="button" onclick="checkAnswers()">Check Corrections</button>
+                    <button class="button" onclick="nextStory()" style="background: linear-gradient(45deg, #764ba2, #667eea);">Next Level</button>
+                    <button class="solution-button" onclick="showSolution()">Give Up</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let stories = [];
+        let currentStoryIndex = 0;
+        let score = 0;
+
+        function startGame() {
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('gameArea').style.display = 'block';
+            fetchStories();
+        }
+
+        async function fetchStories() {
+            try {
+                const response = await fetch('http://localhost:5001/api/stories');
+                stories = await response.json();
+                showStory(0);
+                updateProgress();
+            } catch (error) {
+                showFeedback('Error loading stories. Please refresh the page.', false);
+            }
+        }
+
+        function updateLevelIndicator(story) {
+            document.getElementById('currentLevel').textContent = story.level;
+            const stars = '⭐'.repeat(story.level);
+            document.getElementById('difficultyStars').textContent = stars;
+            
+            document.getElementById('progress').className = `progress level-${story.level}`;
+        }
+
+        function showStory(index) {
+            if (index >= stories.length) {
+                const finalScore = score;
+                const maxScore = stories.reduce((sum, story) => sum + story.errors.length, 0);
+                const percentage = Math.round((finalScore / maxScore) * 100);
+                
+                let message = `🎉 Congratulations! You've completed Grammar Quest!\n\n`;
+                message += `Final Score: ${finalScore}/${maxScore} (${percentage}%)\n\n`;
+                
+                if (percentage >= 90) message += "🏆 Grammar Master!";
+                else if (percentage >= 70) message += "📚 Grammar Expert!";
+                else if (percentage >= 50) message += "✍️ Grammar Apprentice!";
+                else message += "🎯 Keep practicing!";
+                
+                alert(message);
+                location.reload();
+                return;
+            }
+            
+            const story = stories[index];
+            document.getElementById('storyTitle').textContent = story.title;
+            document.getElementById('storyText').textContent = story.text;
+            document.getElementById('userCorrection').value = story.text;
+            updateLevelIndicator(story);
+            updateProgress();
+        }
+
+        function checkAnswers() {
+            const userText = document.getElementById('userCorrection').value;
+            const story = stories[currentStoryIndex];
+            let correctCount = 0;
+            let feedback = [];
+
+            story.errors.forEach((error, index) => {
+                if (!userText.includes(error.original) && userText.includes(error.corrected)) {
+                    correctCount++;
+                }
+            });
+
+            const totalErrors = story.errors.length;
+            score += correctCount;
+            document.getElementById('score').textContent = score;
+            
+            let message = '';
+            if (correctCount === totalErrors) {
+                message = `🌟 Perfect! You found all ${totalErrors} errors in Level ${story.level}!`;
+            } else if (correctCount > 0) {
+                message = `Found ${correctCount}/${totalErrors} errors. Keep trying!`;
+            } else {
+                message = `No errors corrected yet. Look carefully at the text!`;
+            }
+            
+            showFeedback(message, correctCount === totalErrors);
+        }
+
+        function nextStory() {
+            currentStoryIndex++;
+            showStory(currentStoryIndex);
+            document.getElementById('feedback').style.display = 'none';
+        }
+
+        function updateProgress() {
+            const progress = ((currentStoryIndex) / stories.length) * 100;
+            document.getElementById('progress').style.width = `${progress}%`;
+        }
+
+        function showFeedback(message, isSuccess) {
+            const feedback = document.getElementById('feedback');
+            feedback.textContent = message;
+            feedback.className = `feedback ${isSuccess ? 'success' : 'error'}`;
+            feedback.style.display = 'block';
+        }
+
+        function showSolution() {
+            if (!confirm("Are you sure you want to see the solution? You won't earn points for this level.")) {
+                return;
+            }
+            
+            const story = stories[currentStoryIndex];
+            let correctedText = story.text;
+            
+            story.errors.forEach(error => {
+                correctedText = correctedText.replace(error.original, error.corrected);
+            });
+            
+            document.getElementById('userCorrection').value = correctedText;
+            showFeedback("Study the corrections carefully and try the next level on your own!", false);
+        }
+    </script>
+</body>
+</html> 
